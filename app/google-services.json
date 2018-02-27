@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "126163872100",
+    "firebase_url": "https://formulariofirebase.firebaseio.com",
+    "project_id": "formulariofirebase",
+    "storage_bucket": "formulariofirebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126163872100:android:23599881f7aa9301",
+        "android_client_info": {
+          "package_name": "com.example.u4firebasedni"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "126163872100-u5qpvo2mmctgfv51sr6jrm4og7ua1ao7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.u4firebasedni",
+            "certificate_hash": "600ee4f3d22918d02e5e6d314020db6bb27589c6"
+          }
+        },
+        {
+          "client_id": "126163872100-9qajl9on9sv4otgjrql5d55gfpv81ckp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0adlzHkeAZTByGOf-yjF715jba3BikXY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "126163872100-9qajl9on9sv4otgjrql5d55gfpv81ckp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
