@@ -12,6 +12,10 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    static final String EXTRA_NOMBRE = "NOMBRE";
+    static final String EXTRA_DNI = "DNI";
+    static final String EXTRA_PROFESION = "PROFESION";
+
     ListView lvempleados;
     ArrayList<CEmpleado> lista_empleados = new ArrayList<CEmpleado>();
 
@@ -27,7 +31,16 @@ public class MainActivity extends AppCompatActivity {
         lvempleados.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CEmpleado empleado = ((CEmpleado)parent.getItemAtPosition(position));
+                String nombre=empleado.getNombre().toString();
+                String dni=empleado.getDni().toString();
+                String profesion=empleado.getProfesion().toString();
+
                 Intent i=new Intent (getApplicationContext(),FormularioActivity.class);
+                i.putExtra(EXTRA_NOMBRE, nombre);
+                i.putExtra(EXTRA_DNI, dni);
+                i.putExtra(EXTRA_PROFESION, profesion);
+
                 startActivity(i);
             }
         });
@@ -53,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         DialogEliminar dialogo = new DialogEliminar();
         dialogo.show(fragmentManager, "dialogEliminar");
     }
+
 
     public void cargarDatos (){
         lista_empleados.add(new CEmpleado("Pepe Martínez", 124536524+"Y", "Policía"));
