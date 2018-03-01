@@ -32,6 +32,10 @@ public class CEmpleado implements Parcelable{
         this.profesion = profesion;
     }
 
+    public CEmpleado(){
+
+    }
+
     public CEmpleado(Parcel p) {
         readFromParcel(p);
     }

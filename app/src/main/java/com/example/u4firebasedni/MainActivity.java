@@ -4,56 +4,39 @@ import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    static final String EXTRA_NOMBRE = "NOMBRE";
-    static final String EXTRA_DNI = "DNI";
-    static final String EXTRA_PROFESION = "PROFESION";
+    static final String EXTRA_EMPLEADO = "EMPLEADO";
 
     ListView lvempleados;
     ArrayList<CEmpleado> lista_empleados = new ArrayList<CEmpleado>();
+
+    DatabaseReference dbRef;
+    ValueEventListener valueEventListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        lvempleados=(ListView)findViewById(R.id.lvEmpleados);
-        AdaptadorEmpleado adaptadorEmpleado=new AdaptadorEmpleado(this, lista_empleados);
-        lvempleados.setAdapter(adaptadorEmpleado);
+        lvempleados = (ListView) findViewById(R.id.lvEmpleados);
 
-        lvempleados.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CEmpleado empleado = ((CEmpleado)parent.getItemAtPosition(position));
-                String nombre=empleado.getNombre().toString();
-                String dni=empleado.getDni().toString();
-                String profesion=empleado.getProfesion().toString();
-
-                Intent i=new Intent (getApplicationContext(),FormularioActivity.class);
-                i.putExtra(EXTRA_NOMBRE, nombre);
-                i.putExtra(EXTRA_DNI, dni);
-                i.putExtra(EXTRA_PROFESION, profesion);
-
-                startActivity(i);
-            }
-        });
-
-        lvempleados.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                dialogEliminar();
-                return true; //True ya que hay dos eventos de click
-            }
-        });
-
-        cargarDatos();
+        cargarDatosFirebase();
     }
 
     public void btnNuevoEmpleado (View view){
@@ -67,12 +50,69 @@ public class MainActivity extends AppCompatActivity {
         dialogo.show(fragmentManager, "dialogEliminar");
     }
 
-
-    public void cargarDatos (){
-        lista_empleados.add(new CEmpleado("Pepe Martínez", 124536524+"Y", "Policía"));
-        lista_empleados.add(new CEmpleado("María Perez", 23554123+"M", "Médica"));
-        lista_empleados.add(new CEmpleado("Luis López", 63524894+"Z", "Bombero"));
-        lista_empleados.add(new CEmpleado("Javier Orte", 54782459+"W", "Profesor"));
-        lista_empleados.add(new CEmpleado("Luis López", 45876532+"S", "Chef"));
+    private void cargarDatosFirebase(){
+        //Conexión con la base de datos
+        dbRef = FirebaseDatabase.getInstance().getReference().child("empleados"); //Nombre referente a la clase añadida en Firebase
+        //Añadimos el evento que nos devolverá los valores
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                lista_empleados.clear();
+                for (DataSnapshot empleadosDataSnapshot: dataSnapshot.getChildren()) {
+                    cargarListView(empleadosDataSnapshot);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("MainActivity", "DATABASE ERROR");
+            }
+        };
+        dbRef.addValueEventListener(valueEventListener); //Para cargar datos en tiempo real
     }
+
+    private void cargarListView (DataSnapshot dataSnapshot){
+
+        lista_empleados.add(dataSnapshot.getValue(CEmpleado.class));
+        AdaptadorEmpleado adaptadorEmpleado = new AdaptadorEmpleado(this, lista_empleados);
+        lvempleados.setAdapter(adaptadorEmpleado);
+
+        lvempleados.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CEmpleado empleadoClicado = (CEmpleado)parent.getItemAtPosition(position);
+
+                Intent i=new Intent(getApplicationContext(), FormularioActivity.class);
+                i.putExtra(EXTRA_EMPLEADO,empleadoClicado);
+
+                startActivity(i);
+            }
+        });
+
+        lvempleados.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                dialogEliminar();
+
+                CEmpleado empleadoClicado = (CEmpleado)parent.getItemAtPosition(position);
+
+
+                dbRef = FirebaseDatabase.getInstance().getReference().child("empleados");
+
+                dbRef.child(empleadoClicado.getDni()).removeValue(new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError == null) {
+                            Toast.makeText(getApplicationContext(), "Insertado correctamente", Toast.LENGTH_SHORT).show();
+
+                        } else {
+                            Toast.makeText(getApplicationContext(), "No se puede modificar el jugador", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                return true; //True ya que hay dos eventos de click
+            }
+        });
+    }
+
+
 }
